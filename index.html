@@ -3,10 +3,16 @@
 </style></head><body><div class="app" id="app"></div><div id="modal"></div><div id="toast"></div><div class="print" id="print"></div><script>
 const KEY='lg_pos_v8';
 const seedProducts=[['Taco de maíz','Tacos',25],['Taco de maíz con queso','Tacos',30],['Torta normal','Tortas',40],['Torta con queso','Tortas',45],['Empanada especial','Antojitos',25],['Polcán especial','Antojitos',25],['Empanada sencilla','Antojitos',20],['Polcán sencillo','Antojitos',20],['Agua de litro','Bebidas',30,['Lima limón','Limonada fresa','Horchata','Jamaica']],['Coca-Cola 500 ml','Bebidas',30]];
-const seedGuisos=['Asado normal','Asado rojo','Mixta de chorizo','Asado con chorizo','Pechuga empanizada','Mexicana','Alambre'];
+const seedGuisos=['Asado normal','Asado rojo','Mixta de chorizo','Asado con chorizo','Pechuga empanizada','Mexicana','Alambre']
+
 function fresh(){let p={};seedProducts.forEach((x,i)=>p['p'+i]={id:'p'+i,name:x[0],cat:x[1],price:x[2],stock:99,active:true,sabores:x[3]||[]});let g={};seedGuisos.forEach((n,i)=>g['g'+i]={id:'g'+i,name:n,stock:99,active:true});return {settings:{business:'Los Güeros',phone:'529991938170',logo:'',open:true},products:p,guisos:g,orders:[],sales:[],tables:Array.from({length:10},(_,i)=>({id:i+1,status:'Libre',items:[],customer:''})),zones:{Cerca:10,'Distancia media':20,'Distancia lejos':25},combos:[],users:{admin:{role:'Administrador',pin:'2468'}},cash:0};}
 let db=JSON.parse(localStorage.getItem(KEY)||'null')||fresh();
-if(db.products?.p8){db.products.p8.sabores=['Lima limón','Limonada fresa','Horchata','Jamaica'];db.products.p8.cat='Bebidas';}
+Object.values(db.products).forEach(p=>{
+  if(['Tacos','Tortas','Antojitos'].includes(p.cat)){
+    p.guiso=true;
+  }
+});
+  if(db.products?.p8){db.products.p8.sabores=['Lima limón','Limonada fresa','Horchata','Jamaica'];db.products.p8.cat='Bebidas';}
 let cart=[], userLocation=null, mode='Domicilio', cat='Todos', role='Cliente', selectedTable=null;
 function save(){localStorage.setItem(KEY,JSON.stringify(db))} function money(n){return '$'+Number(n).toFixed(2)} function esc(s){return String(s).replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\\':'&#92;'}[m]))} function toast(s){let e=document.getElementById('toast');e.textContent=s;e.className='toast';setTimeout(()=>e.className='',2200)}
 function nav(){return `<div class=top><div class=brand><img class=logo src="${db.settings.logo||''}" onerror="this.style.display='none'"><div><b>${esc(db.settings.business)}</b><div class=muted style="color:#d1d5db">POS V8 · ${db.settings.open?'Abierto':'Cerrado'}</div></div></div><button class=accent onclick="login()">${role==='Cliente'?'Acceso POS':role}</button></div><div class=nav>${[['cliente','🛒 Pedido'],['pos','💰 Caja/POS'],['cocina','👨‍🍳 Cocina'],['mesas','🪑 Mesas'],['inventario','📦 Inventario'],['reportes','📊 Reportes'],['config','⚙️ Config']].map(x=>`<button class="${view===x[0]?'active':''}" onclick="go('${x[0]}')">${x[1]}</button>`).join('')}</div>`}

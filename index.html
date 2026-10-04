@@ -3,6 +3,17 @@
 </style></head><body><div class="app" id="app"></div><div id="modal"></div><div id="toast"></div><div class="print" id="print"></div><script>
 const KEY='lg_pos_v8';
   const BUSINESS_LOCATION={lat:20.9145679,lon:-89.7090912};
+  function calcDeliveryZone(){
+if(!userLocation)return null;
+const R=6371;
+const dLat=(userLocation.lat-BUSINESS_LOCATION.lat)*Math.PI/180;
+const dLon=(userLocation.lon-BUSINESS_LOCATION.lon)*Math.PI/180;
+const a=Math.sin(dLat/2)**2+Math.cos(BUSINESS_LOCATION.lat*Math.PI/180)*Math.cos(userLocation.lat*Math.PI/180)*Math.sin(dLon/2)**2;
+const d=2*R*Math.asin(Math.sqrt(a));
+if(d<=3)return{zone:'Cerca',fee:10,distance:d};
+if(d<=6)return{zone:'Distancia media',fee:20,distance:d};
+return{zone:'Distancia lejos',fee:25,distance:d};
+}
 const seedProducts=[['Taco de maíz','Tacos',25],['Taco de maíz con queso','Tacos',30],['Torta normal','Tortas',40],['Torta con queso','Tortas',45],['Empanada especial','Antojitos',25],['Polcán especial','Antojitos',25],['Empanada sencilla','Antojitos',20],['Polcán sencillo','Antojitos',20],['Agua de litro','Bebidas',30,['Lima limón','Limonada fresa','Horchata','Jamaica']],['Coca-Cola 500 ml','Bebidas',30]];
 const seedGuisos=['Asado normal','Asado rojo','Mixta de chorizo','Asado con chorizo','Pechuga empanizada','Mexicana','Alambre']
 
